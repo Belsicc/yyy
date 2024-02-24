@@ -1,0 +1,8 @@
+{
+    "build": {
+      "functions": ".functions",
+      "src": "src",
+      "command": "npm install && npm run build"
+    }
+  }
+  

